@@ -82,13 +82,12 @@ public class Hypervisor extends Cloud {
     private transient int currentOnlineSlaveCount = 0;
     private transient Hashtable<String, String> currentOnline;
     private transient IConnect connection;
-    private final boolean useNativeJavaConnection;
     private final String credentialsId;
 
 
     @DataBoundConstructor
     public Hypervisor(String hypervisorType, String hypervisorHost, int hypervisorSshPort, String hypervisorSystemUrl, String username, int maxOnlineSlaves,
-                      boolean useNativeJavaConnection, String credentialsId) {
+                      String credentialsId) {
         super("Hypervisor(libvirt)");
         this.hypervisorType = hypervisorType;
         this.hypervisorHost = hypervisorHost;
@@ -100,7 +99,6 @@ public class Hypervisor extends Cloud {
         this.hypervisorSshPort = hypervisorSshPort <= 0 ? 22 : hypervisorSshPort;
         this.username = username;
         this.maxOnlineSlaves = maxOnlineSlaves;
-        this.useNativeJavaConnection = useNativeJavaConnection;
         this.credentialsId = credentialsId;
     }
 
@@ -117,8 +115,7 @@ public class Hypervisor extends Cloud {
                 .withCredentials(lookupSystemCredentials(credentialsId))
                 .hypervisorHost(hypervisorHost)
                 .hypervisorPort(hypervisorSshPort)
-                .hypervisorSysUrl(hypervisorSystemUrl)
-                .useNativeJava(useNativeJavaConnection);
+                .hypervisorSysUrl(hypervisorSystemUrl);
     }
 
     private synchronized IConnect getOrCreateConnection() throws VirtException {
@@ -183,10 +180,6 @@ public class Hypervisor extends Cloud {
 
     public String getUsername() {
         return username;
-    }
-
-    public boolean isUseNativeJavaConnection() {
-        return useNativeJavaConnection;
     }
 
     public String getCredentialsId() {
@@ -424,7 +417,7 @@ public class Hypervisor extends Cloud {
         public FormValidation doTestConnection(
                 @QueryParameter String hypervisorType, @QueryParameter String hypervisorHost, @QueryParameter String hypervisorSshPort,
                 @QueryParameter String username, @QueryParameter String hypervisorSystemUrl,
-                @QueryParameter boolean useNativeJavaConnection, @QueryParameter String credentialsId) throws Exception, ServletException {
+                @QueryParameter String credentialsId) throws Exception, ServletException {
             try {
                 if (hypervisorHost == null) {
                     return FormValidation.error("Hypervisor Host is not specified!");
@@ -442,8 +435,7 @@ public class Hypervisor extends Cloud {
                         .withCredentials(lookupSystemCredentials(credentialsId))
                         .hypervisorHost(hypervisorHost)
                         .hypervisorPort(Integer.parseInt(hypervisorSshPort))
-                        .hypervisorSysUrl(hypervisorSystemUrl)
-                        .useNativeJava(useNativeJavaConnection);
+                        .hypervisorSysUrl(hypervisorSystemUrl);
 
                 String hypervisorUri = builder.constructHypervisorURI();
 
